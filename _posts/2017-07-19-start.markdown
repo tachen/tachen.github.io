@@ -1,26 +1,40 @@
 ---
 layout:     post
-title:      "启程篇-Unreal Engine4初步尝试"
+title:      "启程篇"
 subtitle:   "万事开头难，算是过了一个难关了"
 date:       2017-07-19 12:00:00
 author:     "tachen"
 header-img: "img/post-start-bg-01.jpg"
 ---
 
-<h2 class="section-heading">地形尝试</h2>
+<h1>开始之前做了什么</h1>
+
+<h2 class="section-heading">准备了这个博客</h2>
+
+<p>之前零零散散也写过一些东西，之后会统一汇总到一个地方，这里目前还比较满意</p>
+
+<p>会将最新做游戏得到的体会放在这里，慢慢做游戏，慢慢写总结</p>
+
+<p></p>
+
+<h2 class="section-heading">终于换了新电脑</h2>
+<p>VR Ready PC</p>
+
+<h2 class="section-heading">尝试了下Unreal Engine4</h2>
+<h3 class="section-heading">地形尝试</h3>
 <img src="{{ site.baseurl }}/img/post-start-bg-00.jpg" alt="图-0">
 
-<h2 class="section-heading">光照尝试</h2>
+<h3 class="section-heading">光照尝试</h3>
 <img src="{{ site.baseurl }}/img/post-start-bg-03.jpg" alt="图-1">
 
-<h2 class="section-heading">初步尝试效果</h2>
+<h3 class="section-heading">初步尝试效果</h3>
 <img src="{{ site.baseurl }}/img/post-start-bg-02.jpg" alt="图-2">
 
-<h2 class="section-heading">初步尝试感想</h2>
+<h3 class="section-heading">初步尝试感想</h3>
 <p>光源类型：Unreal Engine4相比Unity Engine多了一个Sky Light</p>
-<p>资源空间：Unreal Engine4资源量很大，需要配置更大硬盘空间(1T)和内存空间(16G)</p>
+<p>资源空间：Unreal Engine4消耗资源量很大，新电脑配置还需升级</p>
 
-<h2 class="section-heading">参考资料</h2>
+<h3 class="section-heading">参考资料</h3>
 <a href="https://docs.unrealengine.com/latest/INT/Engine/OpenWorldTools/Grass/QuickStart/index.html" target="_blank">Unreal Engine4 Grass Tool</a>
 
 
