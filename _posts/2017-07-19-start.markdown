@@ -1,0 +1,29 @@
+---
+layout:     post
+title:      "启程篇-Unreal Engine4初步尝试"
+subtitle:   "万事开头难，算是过了一个难关了"
+date:       2017-07-19 12:00:00
+author:     "tachen"
+header-img: "img/post-start-bg-01.jpg"
+---
+
+<h2 class="section-heading">地形尝试</h2>
+<img src="{{ site.baseurl }}/img/post-start-bg-00.jpg" alt="图-0">
+
+<h2 class="section-heading">光照尝试</h2>
+<img src="{{ site.baseurl }}/img/post-start-bg-03.jpg" alt="图-1">
+
+<h2 class="section-heading">初步尝试效果</h2>
+<img src="{{ site.baseurl }}/img/post-start-bg-02.jpg" alt="图-2">
+
+<h2 class="section-heading">初步尝试感想</h2>
+<p>光源类型：Unreal Engine4相比Unity Engine多了一个Sky Light</p>
+<p>资源空间：Unreal Engine4资源量很大，需要配置更大硬盘空间(1T)和内存空间(16G)</p>
+
+<h2 class="section-heading">参考资料</h2>
+<a href="https://docs.unrealengine.com/latest/INT/Engine/OpenWorldTools/Grass/QuickStart/index.html" target="_blank">Unreal Engine4 Grass Tool</a>
+
+
+
+
+

@@ -1,1 +1,25 @@
-theme: jekyll-theme-architect
+# Site settings
+title: BTG开发日志
+header-img: img/home-bg.jpg
+email: tachen@foxmail.com
+copyright_name: tachen/Corporate BTG
+description: "每天进步一点点！"
+baseurl: "/TachenBlog"
+url: "https://tachen.github.io/"
+twitter_username: tachen
+github_username:  tachen
+facebook_username:  tachen
+email_username:  tachen@foxmail.com
+
+# Google Analytics
+# To enable google analytics, uncomment below line with a valid Google Tracking ID
+# google_tracking_id:
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+permalink: pretty
+paginate: 5
+exclude: ["less","node_modules","Gruntfile.js","package.json","README.md"]
+
+gems: [jekyll-paginate, jekyll-feed]
