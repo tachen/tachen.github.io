@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "启程篇"
-subtitle:   "万事开头难，算是过了一个难关了"
+subtitle:   "万事开头难，算是过了一个难关"
 date:       2017-07-19 12:00:00
 author:     "tachen"
 header-img: "img/post-start-bg-01.jpg"
