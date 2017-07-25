@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "机试练习"
-subtitle:   "给定一个字符串M，对M进行权重重排后得到结果数组S，要求S中所有的字符串的权重比M小，并最终S中输出最小的权重"
+subtitle:   "给定一个字符串M，对M进行权重排序后得到结果数组S，要求S中所有的字符串的权重比M大，最终输出S中最小权重的字符串"
 date:       2017-07-25 15:00:00
 author:     "tachen"
 header-img: "img/post-MultiverseTestbg-02.jpg"
@@ -15,7 +15,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 给定一个字符串M，对M进行权重重排后得到结果数组S，要求S中所有的字符串的权重比M小，并最终S中输出最小的权重
+/// 给定一个字符串M，对M进行权重排序后得到结果数组S，要求S中所有的字符串的权重比M大，最终输出S中最小权重的字符串
 /// 
 /// 字符越靠前权重越大，相同位置字符权重大小按英文字母排序a—z，
 /// 
