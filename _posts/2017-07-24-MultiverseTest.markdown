@@ -15,7 +15,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 给定一个字符串M，对M进行权重排序后得到结果数组S，要求S中所有的字符串的权重比M大，最终输出S中最小权重的字符串
+/// 给定一个字符串M，对M进行权重重排后得到结果数组S，要求S中所有的字符串的权重比M大，并最终S中输出最小的权重
 /// 
 /// 字符越靠前权重越大，相同位置字符权重大小按英文字母排序a—z，
 /// 
@@ -84,7 +84,7 @@ public class MultiverseTest : MonoBehaviour
             allData[tempAllData[i].index].order = i;
         }
 
-        //从右到左遍历
+        //从右到左遍历，保证权重更大的S
         int index = 0;
         bool isBreak = false;
         for (int i = count - 1; i >= 0; i--)
@@ -108,7 +108,7 @@ public class MultiverseTest : MonoBehaviour
             }
         }
 
-        //对剩余字符做权重排序
+        //对剩余字符做权重排序，保证得到S中最小权重字符串
         for (int i = count - 1; i > index; i--)
             for (int j = i; j > index; j--)
             {
@@ -130,7 +130,6 @@ public class MultiverseTest : MonoBehaviour
         Debug.Log(combine.ToString());
     }
 }
-
 ```
 
 <p>优化只需要更换排序算法就行</p>
