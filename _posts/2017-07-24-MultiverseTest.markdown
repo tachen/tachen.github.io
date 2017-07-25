@@ -1,8 +1,8 @@
 ---
 layout:     post
-title:      "关于如何添加内容"
-subtitle:   "从无序到有序，释放程序员潜力,英文关键词Content Pipeline"
-date:       2017-07-20 12:00:00
+title:      "机试练习"
+subtitle:   "给定一个字符串M，对M进行权重重排后得到结果数组S，要求S中所有的字符串的权重比M小，并最终S中输出最小的权重"
+date:       2017-07-25 15:00:00
 author:     "tachen"
 header-img: "img/post-MultiverseTestbg-02.jpg"
 ---
