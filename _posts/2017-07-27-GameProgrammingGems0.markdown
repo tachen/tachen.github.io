@@ -2,7 +2,7 @@
 layout:     post
 title:      "游戏编程精粹第一卷阅读笔记"
 subtitle:   "回顾游戏制作历史，希望制作出更好的游戏"
-date:       2017-07-27 22:00:00
+date:       2017-07-26 22:00:00
 author:     "tachen"
 header-img: "img/post-GameProgrammingGems0-bg-00.jpg"
 ---
