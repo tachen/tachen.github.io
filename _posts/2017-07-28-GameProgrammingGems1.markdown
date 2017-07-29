@@ -142,6 +142,8 @@ header-img: "img/post-GameProgrammingGems1-bg-00.png"
 > 由于很多游戏参数是需在开发阶段进行调整，因此可以在开发阶段使用基于文本的格式，而在产品中使用更佳的二进制格式。
 > 这样使融合了两方面的优点：文本数据易于使用；二进制数据的装载速度快。
 
+**现在我们使用自动化生成和按需加载策略**
+
 <h4>变化</h4>
 <p>从第二卷开始，增加了一个大类：音频处理</p>
 
@@ -158,7 +160,12 @@ header-img: "img/post-GameProgrammingGems1-bg-00.png"
 <a href="http://gameframework.cn/summary" target="_blank">Game Framework开源框架</a>
 <br />
 <br />
-<a href="http://www.cnipr.net/article_show.asp?article_id=15627" target="_blank">姚勇与大理辐射软件开发有限公司技术委托开发合同纠纷案</a> 
+<a href="https://zhuanlan.zhihu.com/p/25228392" target="_blank">Unity 游戏配置表格代码自动生成术</a> 
+<br />
+<br />
+<a href="http://www.cnipr.net/article_show.asp?article_id=15627" target="_blank">姚勇与大理辐射软件开发有限公司技术委托开发合同纠纷案</a>
+
+
 
 
 
