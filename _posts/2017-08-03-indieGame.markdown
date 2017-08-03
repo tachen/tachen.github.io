@@ -18,11 +18,17 @@ header-img: "img/post-IndieGame-bg-00.png"
 <a href="https://indienova.com/" target="_blank">独立精神</a>
 
 <h3 class="section-heading">个人博客篇</h3>
+<a href="http://www.fishartgame.com/" target="_blank">鱼 fish</a>
+<br />
+
 <a href="http://levelupjun.github.io/" target="_blank">升级君</a>
 
 <h3 class="section-heading">GameJam篇</h3>
 <p>CigaGamejam</p>
 <p>GlobalGamejam</p>
+
+<h3 class="section-heading">程序篇</h3>
+<a href="http://www.pouet.net/prod.php?which=67113" target="_blank">fermi paradox	(64k游戏)</a>
 
 <h3 class="section-heading">商业计划篇</h3>
 <a href="https://www.playstation.com.cn/chinaheroproject/hero.html" target="_blank">PlayStation：中国之星计划</a>
