@@ -30,6 +30,9 @@ header-img: "img/post-IndieGame-bg-00.png"
 <h3 class="section-heading">程序篇</h3>
 <a href="http://www.pouet.net/prod.php?which=67113" target="_blank">fermi paradox	(64k游戏)</a>
 
+<<h3 class="section-heading">活动篇</h3>>
+<a href="https://cowlevel.net/article/1861261" target="_blank">游戏玄学社</a>
+
 <h3 class="section-heading">商业计划篇</h3>
 <a href="https://www.playstation.com.cn/chinaheroproject/hero.html" target="_blank">PlayStation：中国之星计划</a>
 <br />
