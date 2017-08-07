@@ -24,7 +24,7 @@ header-img: "img/post-IndieGame-bg-00.png"
 <a href="http://levelupjun.github.io/" target="_blank">升级君</a>
 <br />
 
-<a href="https://www.zhihu.com/people/felania-liu/answers" target="_blank">Felania LiuENTP. 游戏研究者＋游戏化设计师</a>
+<a href="http://www.fenglee.com/" target="_blank">阿丰</a>
 
 <h3 class="section-heading">GameJam篇</h3>
 <p>CigaGamejam</p>
