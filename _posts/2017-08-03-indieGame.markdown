@@ -22,6 +22,9 @@ header-img: "img/post-IndieGame-bg-00.png"
 <br />
 
 <a href="http://levelupjun.github.io/" target="_blank">升级君</a>
+<br />
+
+<a href="http://m.thepaper.cn/newsDetail_forward_1294382" target="_blank">澎湃</a>
 
 <h3 class="section-heading">GameJam篇</h3>
 <p>CigaGamejam</p>
