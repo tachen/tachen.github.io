@@ -35,7 +35,6 @@ header-img: "img/post-IndieGame-bg-00.png"
 
 <h3 class="section-heading">活动篇</h3>
 <p>游戏玄学社</p>
-<br />
 
 <a href="https://zhuanlan.zhihu.com/p/27891290" target="_blank">失落的乌托邦：《潜龙谍影》为何要不断挑战游戏行业的上限</a>
 
