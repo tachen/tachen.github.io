@@ -28,7 +28,7 @@ header-img: "img/post-PBR-bg-00.png"
 <p>Shader要实现两个部分：BRDF和Image-based Lighting</p>
 
 <p>BRDF: <br />
-具体来说BRDF中包含：Specular BRDF[3]，如何在Unity
+具体来说BRDF实现中包含：Specular BRDF[3]，如何在Unity
 中自己实现Specular BRDF，可以看参考[4]</p>
 
 <p>Specular BRDF包含三个部分：
