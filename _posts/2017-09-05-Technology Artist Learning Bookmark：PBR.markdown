@@ -1,7 +1,7 @@
 ---
 layout:     post
-title:      "Technology Artist Learning Bookmark：PBR"
-subtitle:   "转职技术美术学习笔记第一卷：Physically base rendering学习目录"
+title:      "Technical Artist Learning Bookmark：PBR"
+subtitle:   "转职技术美术学习笔记第一卷：Physically based rendering学习目录"
 date:       2017-09-04 15:30:00
 author:     "tachen"
 header-img: "img/post-PBR-bg-00.png"
@@ -9,12 +9,12 @@ header-img: "img/post-PBR-bg-00.png"
 <h2>前言</h2>
 <p>这里只有PBR学习需要的目录部分</p>
 
-<h2>什么是 Physically base rendering</h2>
+<h2>什么是 Physically based rendering</h2>
 <p>
-计算机图形学一直以来都在研究如何模拟现实世界中光线与各种物体表面交互的结果，为了得到真实感很强的画面，离线渲染使用Ray tracing等全局光照技术，而在游戏相关的实时渲染领域，一直以来都是使用简化的光照模型[1]和静态全局光照[2]，而如何在游戏等实时渲染领域实现更加真实的效果一直都有很多学术研究，近几年的siggraph会议上提出的Physically base rendering就是其中一个方法。
+计算机图形学一直以来都在研究如何模拟现实世界中光线与各种物体表面交互的结果，为了得到真实感很强的画面，离线渲染使用Ray tracing等全局光照技术，而在游戏相关的实时渲染领域，一直以来都是使用简化的光照模型[1]和静态全局光照[2]，而如何在游戏等实时渲染领域实现更加真实的效果一直都有很多学术研究，近几年的siggraph会议上提出的Physically based rendering就是其中一个方法。
 </p>
 
-<h2>如何实现 Physically base rendering [5]</h2>
+<h2>如何实现 PBR [5]</h2>
 <h3>Shading Model</h3>
 <p>Shader要实现两个部分：BRDF和Image-based Lighting</p>
 
