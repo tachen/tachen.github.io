@@ -14,6 +14,15 @@ header-img: "img/post-PBR-bg-00.png"
 计算机图形学一直以来都在研究如何模拟现实世界中光线与各种物体表面交互的结果，为了得到真实感很强的画面，离线渲染使用Ray tracing等全局光照技术，而在游戏相关的实时渲染领域，一直以来都是使用简化的光照模型[1]和静态全局光照[2]，而如何在游戏等实时渲染领域实现更加真实的效果一直都有很多学术研究，近几年的siggraph会议上提出的Physically based rendering就是其中一个方法。
 </p>
 
+<h2>PBR理论部分 [8]</h2>
+<p>什么是Physically based
+<ul>
+<li>Be based on the microfacet surface model</li>
+<li>Be energy conserving</li>
+<li>Use a physically based BRDF</li>
+</ul>
+</p>
+
 <h2>如何实现 PBR [5]</h2>
 <h3>Shading Model</h3>
 <p>Shader要实现两个部分：BRDF和Image-based Lighting</p>
