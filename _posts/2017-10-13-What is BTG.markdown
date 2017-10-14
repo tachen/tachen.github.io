@@ -33,7 +33,7 @@ BTG会做什么
 <a href="https://github.com/duzhi5368" target="_blank">https://github.com/duzhi5368</a>
 <br />
 <br />
-<a href="https://github.com/superzysBTG" target="_blank">https://github.com/superzysBTG</a>
+<a href="https://github.com/superzys" target="_blank">https://github.com/superzys</a>
 
 <h2>成员列表</h2>
 <p>
