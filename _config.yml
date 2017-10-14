@@ -1,11 +1,11 @@
 # Site settings
 title: BTG开发日志
-header-img: img/home-bg.jpg
+header-img: img/post-BTG-bg-0.jpg
 email: tachen@foxmail.com
 copyright_name: tachen/Corporate BTG
 description: "每天进步一点点！"
 baseurl: "/tachen.github.io"
-url: ""
+url: "/TachenBlog"
 twitter_username: tachen8
 github_username:  tachen
 facebook_username:  
