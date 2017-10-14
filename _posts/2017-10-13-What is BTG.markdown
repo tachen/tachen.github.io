@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "What is BTG"
-subtitle:   "BTG是什么"
+subtitle:   "Back To Game—回归游戏"
 date:       2017-10-13 24:00:00
 author:     "tachen"
 header-img: "img/post-BTG-bg-0.png"
