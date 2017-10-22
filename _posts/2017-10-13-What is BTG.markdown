@@ -40,6 +40,9 @@ Open Game也是类似的项目，Open意味着项目会是开放的，不仅仅�
 <br />
 <br />
 <a href="https://github.com/superzys" target="_blank">https://github.com/superzys</a>
+<br />
+<br />
+<a href="https://github.com/yuangu/sxtwl_cpp" target="_blank">https://github.com/yuangu/sxtwl_cpp</a>
 
 <h2>成员列表</h2>
 <p>
