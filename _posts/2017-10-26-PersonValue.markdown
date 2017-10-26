@@ -17,7 +17,7 @@ header-img: "img/post-PersonValue-bg-0.jpg"
 常谈穷途不知路<br/>
 只因身在低洼处<br/>
 登高望远景不同<br/>
-人生处处有醒悟<br/>
+人生处处有开悟<br/>
 <br/>
 时光蹉跎<br/>
 感慨万千<br/>
