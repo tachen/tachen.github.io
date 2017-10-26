@@ -14,7 +14,7 @@ header-img: "img/post-PersonValue-bg-0.jpg"
 天气易变人不变<br/>
 事在人为不在天<br/>
 <br/>
-常谈穷途不知路<br/>
+常叹穷途不知路<br/>
 只因身在低洼处<br/>
 登高望远景不同<br/>
 人生处处有开悟<br/>
