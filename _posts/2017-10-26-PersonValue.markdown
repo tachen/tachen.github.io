@@ -29,4 +29,9 @@ header-img: "img/post-PersonValue-bg-0.jpg"
 修行已心<br/>
 是非孰过<br/>
 今夕尚早<br/>
+<br/>
+少时天真乐悠悠<br/>
+青年理想一无前<br/>
+中年现实似纠结<br/>
+壮年未到何须忧<br/>
 </p>
