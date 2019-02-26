@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "闲情"
-subtitle:   "随意"
+subtitle:   "随性"
 date:       2017-10-25 24:00:00
 author:     "tachen"
 header-img: "img/post-PersonValue-bg-0.jpg"
