@@ -184,6 +184,26 @@
 
     // 交互功能
     let lastDraw = 0;
+    // 移动端触摸事件
+    canvas.addEventListener('touchstart', (e) => {
+      isDragging = true;
+      startY = e.touches[0].clientY - offsetY;
+    });
+
+    document.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+      if (Date.now() - lastDraw < 16) return; // 60fps节流
+      
+      offsetY = e.touches[0].clientY - startY;
+      draw();
+      lastDraw = Date.now();
+    });
+
+    document.addEventListener('touchend', () => {
+      isDragging = false;
+    });
+
+    // 鼠标事件 (桌面端)
     canvas.addEventListener('mousedown', (e) => {
       isDragging = true;
       startY = e.clientY - offsetY;
@@ -202,44 +222,33 @@
       isDragging = false;
     });
 
+    // 保存功能
     document.getElementById('saveButton').addEventListener('click', () => {
-      const canvas = document.querySelector('canvas');
-      try {
-        // 尝试使用toBlob生成Blob对象
+      if (isWeChat()) {
+        // 在微信内保存图片
         canvas.toBlob((blob) => {
-          const link = document.createElement('a');
-          link.download = `hd-image-${Date.now()}.png`;
-          const blobUrl = URL.createObjectURL(blob);
-          link.href = blobUrl;
-
-          // 将链接添加到页面，用户手动点击下载
-          link.textContent = '点击此处下载图片';
-          document.body.appendChild(link);
-
-          // 微信中可能无法自动触发click，提示用户点击链接
-          if (/MicroMessenger/.test(navigator.userAgent)) {
-            alert('请手动点击新生成的链接下载图片');
-          } else {
-            link.click(); // 非微信环境自动触发下载
-          }
-
-          // 清理资源
-          setTimeout(() => {
-            URL.revokeObjectURL(blobUrl);
-            link.remove();
-          }, 1000);
+          const url = URL.createObjectURL(blob);
+          wx.saveImageToPhotosAlbum({
+            filePath: url,
+            success() {
+              alert('图片已保存到相册');
+            },
+            fail() {
+              alert('保存失败');
+            }
+          });
         }, 'image/png', 1);
-      } catch (error) {
-        // 若toBlob失败（如跨域问题），改用toDataURL显示图片
-        const dataURL = canvas.toDataURL('image/png');
-        const img = document.createElement('img');
-        img.src = dataURL;
-        img.style.maxWidth = '100%';
-        document.body.appendChild(img);
-        alert('长按图片保存到相册');
+      } else {
+        // 其他环境下载图片
+        const link = document.createElement('a');
+        link.download = `hd-image-${Date.now()}.png`;
+        canvas.toBlob((blob) => {
+          link.href = URL.createObjectURL(blob);
+          link.click();
+          URL.revokeObjectURL(link.href);
+        }, 'image/png', 1);
       }
     });
-
 
     // 辅助函数
     function calculateScale() {
@@ -256,9 +265,17 @@
       loading.style.display = 'none';
     }
 
+    // 判断是否是微信环境
+    function isWeChat() {
+      return /MicroMessenger/i.test(navigator.userAgent);
+    }
+
     // 初始化
     initCanvas();
     loadBackground();
   </script>
+
+  <!-- 微信SDK -->
+  <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
 </body>
 </html>
