@@ -91,6 +91,7 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     const loading = document.getElementById('loading');
+    const scaleSlider = document.getElementById('scaleSlider');
 
     // 状态管理
     let uploadedImage = null;
@@ -126,6 +127,8 @@
         calculateScale();
         draw();
         document.getElementById('saveButton').style.display = 'inline-block';
+        // 根据图片的初始大小设置缩放进度条的初始值
+        scaleSlider.value = scaleFactor;
       } catch (error) {
         alert('图片处理失败: ' + error.message);
       }
@@ -204,7 +207,7 @@
     }
 
     // 缩放图片
-    document.getElementById('scaleSlider').addEventListener('input', (e) => {
+    scaleSlider.addEventListener('input', (e) => {
       scaleFactor = parseFloat(e.target.value);
       draw();
     });
