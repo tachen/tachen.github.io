@@ -16,22 +16,19 @@
       align-items: center;
       background-color: #f0f0f0;
     }
-
     #container {
       width: 300px;
       height: 300px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       position: relative;
       overflow: hidden;
       border: 2px solid #ccc;
     }
-
+    canvas {
+      cursor: move;
+    }
     input[type="file"] {
       margin: 20px 0;
     }
-
     #saveButton {
       margin-top: 20px;
       display: none;
@@ -45,14 +42,12 @@
   </style>
 </head>
 <body>
-
   <h1>上传图片作为背景</h1>
   <input type="file" id="fileInput" accept="image/*">
   
   <div id="container">
     <canvas id="canvas" width="300" height="300"></canvas>
   </div>
-
   <button id="saveButton">保存图片</button>
 
   <script>
@@ -60,82 +55,100 @@
     const saveButton = document.getElementById('saveButton');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-
+    
+    // 初始化变量
     let uploadedImage = null;
     let backgroundImage = new Image();
-    let offsetY = 0; // 只记录 Y 轴偏移
+    let offsetY = 0;
     let isDragging = false;
     let startY;
+    let scaleFactor = 1;
 
     // 加载背景图
-    backgroundImage.src = 'img/backgroundImage.png';
-    backgroundImage.onload = function() {
-      drawWithAlphaMask(backgroundImage);
-    };
+    backgroundImage.src = 'img/backgroundImage.png'; // 确保此图片存在
+    backgroundImage.onload = () => draw();
 
-    // 文件上传事件
-    fileInput.addEventListener('change', function(event) {
+    // 文件上传处理
+    fileInput.addEventListener('change', handleFileUpload);
+    saveButton.addEventListener('click', saveImage);
+
+    // 鼠标事件处理
+    canvas.addEventListener('mousedown', startDragging);
+    document.addEventListener('mousemove', dragImage);
+    document.addEventListener('mouseup', stopDragging);
+
+    function handleFileUpload(event) {
       const file = event.target.files[0];
-      if (file && file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          uploadedImage = new Image();
-          uploadedImage.src = e.target.result;
-          uploadedImage.onload = function() {
-            drawWithAlphaMask(backgroundImage);
-          };
+      if (!file?.type.startsWith('image/')) return alert('请选择有效的图片文件！');
+
+      const reader = new FileReader();
+      reader.onload = e => {
+        uploadedImage = new Image();
+        uploadedImage.src = e.target.result;
+        uploadedImage.onload = () => {
+          calculateScale();
+          draw();
           saveButton.style.display = 'inline-block';
         };
-        reader.readAsDataURL(file);
-      } else {
-        alert('请选择有效的图片文件！');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function calculateScale() {
+      // 保持宽高比的缩放计算
+      const canvasRatio = canvas.width / canvas.height;
+      const imageRatio = uploadedImage.width / uploadedImage.height;
+      scaleFactor = imageRatio > canvasRatio ? 
+        canvas.width / uploadedImage.width : 
+        canvas.height / uploadedImage.height;
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // 绘制用户图片
+      if (uploadedImage) {
+        const scaledWidth = uploadedImage.width * scaleFactor;
+        const scaledHeight = uploadedImage.height * scaleFactor;
+        
+        // 限制垂直拖动范围
+        const maxY = Math.max(0, scaledHeight - canvas.height);
+        offsetY = Math.min(Math.max(offsetY, -maxY), 0);
+        
+        ctx.drawImage(
+          uploadedImage,
+          0, 0, uploadedImage.width, uploadedImage.height,
+          0, offsetY, scaledWidth, scaledHeight
+        );
       }
-    });
 
-    function drawWithAlphaMask(bgImage, maskImage) {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
-  // 先绘制uploadedImage作为背景
-  if (uploadedImage) {
-    const scale = canvas.width / uploadedImage.width;
-    const height = uploadedImage.height * scale;
-    const imageY = Math.min(Math.max(offsetY, 0), canvas.height - height);
-    ctx.drawImage(uploadedImage, 0, imageY, canvas.width, height);
-  }
-  
-  // 再绘制bgImage，其透明部分会显示下方的uploadedImage
-  ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
-}
+      // 叠加背景图
+      ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+    }
 
-
-    // 鼠标事件：拖动图片
-    canvas.addEventListener('mousedown', function(e) {
+    // 拖动相关函数
+    function startDragging(e) {
       isDragging = true;
-      startY = e.offsetY - offsetY; // 记录起始 Y 坐标
-    });
+      startY = e.clientY - offsetY;
+    }
 
-    canvas.addEventListener('mousemove', function(e) {
-      if (isDragging) {
-        offsetY = e.offsetY - startY; // 只更新 Y 轴偏移
-        drawWithAlphaMask(backgroundImage);
-      }
-    });
+    function dragImage(e) {
+      if (!isDragging) return;
+      offsetY = e.clientY - startY;
+      draw();
+    }
 
-    canvas.addEventListener('mouseup', function() {
+    function stopDragging() {
       isDragging = false;
-    });
+    }
 
-    canvas.addEventListener('mouseleave', function() {
-      isDragging = false;
-    });
-
-    // 保存图片
-    saveButton.addEventListener('click', function() {
+    // 保存图片功能
+    function saveImage() {
       const link = document.createElement('a');
-      link.download = 'masked-image.png';
+      link.download = 'combined-image.png';
       link.href = canvas.toDataURL();
       link.click();
-    });
+    }
   </script>
 </body>
 </html>
