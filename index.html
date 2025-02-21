@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>图片上传背景叠加</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -27,6 +26,7 @@
       position: relative;
       overflow: hidden;
       border: 2px solid #ccc;
+      background-color: #eee;
     }
 
     #backgroundImage {
@@ -48,13 +48,18 @@
     }
 
     #imagePreview {
-      display: none;
-      max-width: 100%;
-      max-height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      cursor: grab;
+      transition: transform 0.2s ease;
     }
 
-    .cropper-container {
-      display: none;
+    #saveButton {
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -69,39 +74,30 @@
       <h2>这里是网页内容</h2>
       <p>你上传的图片将显示为背景。</p>
     </div>
+    <img id="imagePreview" src="" alt="预览图片">
   </div>
 
-  <!-- 用来显示裁剪区域的临时图片 -->
-  <div class="cropper-container">
-    <img id="imagePreview" alt="图片预览">
-  </div>
+  <button id="saveButton" style="display: none;">保存图片</button>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
   <script>
-    let cropper;
+    let imagePreview = document.getElementById('imagePreview');
+    let backgroundImage = document.getElementById('backgroundImage');
+    let fileInput = document.getElementById('fileInput');
+    let saveButton = document.getElementById('saveButton');
 
-    document.getElementById('fileInput').addEventListener('change', function(event) {
+    let currentTranslateY = 0; // 当前图片的垂直偏移量
+    let isDragging = false; // 拖动标志
+    let startY = 0;
+
+    // 上传图片
+    fileInput.addEventListener('change', function(event) {
       const file = event.target.files[0];
       if (file && file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          // 显示裁剪区域
-          const imagePreview = document.getElementById('imagePreview');
           imagePreview.src = e.target.result;
-          document.querySelector('.cropper-container').style.display = 'block';
-
-          // 初始化 cropper.js
-          if (cropper) {
-            cropper.destroy(); // 销毁之前的裁剪器
-          }
-          cropper = new Cropper(imagePreview, {
-            aspectRatio: 16 / 9,
-            viewMode: 1,
-            autoCropArea: 0.8,
-            ready: function () {
-              // 可以在此处理裁剪区域准备好了
-            }
-          });
+          imagePreview.style.display = 'block';  // 显示图片预览
+          saveButton.style.display = 'inline-block';  // 显示保存按钮
         };
         reader.readAsDataURL(file);
       } else {
@@ -109,14 +105,50 @@
       }
     });
 
-    // 获取裁剪后的图像并设置为背景
-    document.getElementById('fileInput').addEventListener('change', function() {
-      if (cropper) {
-        const croppedCanvas = cropper.getCroppedCanvas();
-        const croppedImage = croppedCanvas.toDataURL();
-        const backgroundImage = document.getElementById('backgroundImage');
-        backgroundImage.src = croppedImage;
+    // 处理拖动操作
+    imagePreview.addEventListener('mousedown', function(e) {
+      isDragging = true;
+      startY = e.clientY;
+      imagePreview.style.cursor = 'grabbing';
+    });
+
+    window.addEventListener('mousemove', function(e) {
+      if (isDragging) {
+        let deltaY = e.clientY - startY;
+        currentTranslateY += deltaY;
+        imagePreview.style.transform = `translateY(${currentTranslateY}px)`;
+        startY = e.clientY;  // 更新起始位置
       }
+    });
+
+    window.addEventListener('mouseup', function() {
+      isDragging = false;
+      imagePreview.style.cursor = 'grab';
+    });
+
+    // 保存图片
+    saveButton.addEventListener('click', function() {
+      let canvas = document.createElement('canvas');
+      let ctx = canvas.getContext('2d');
+
+      // 设置 canvas 尺寸与背景图片一致
+      canvas.width = backgroundImage.width;
+      canvas.height = backgroundImage.height;
+
+      // 将背景和裁剪后的上传图片绘制到 canvas 上
+      ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height); // 绘制背景
+      ctx.drawImage(
+        imagePreview,
+        0, currentTranslateY, canvas.width, canvas.height,
+        0, 0, canvas.width, canvas.height // 绘制裁剪后的图片
+      );
+
+      // 下载裁剪后的图片
+      let dataUrl = canvas.toDataURL('image/png');
+      let link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = 'cropped_image.png';
+      link.click();
     });
   </script>
 
