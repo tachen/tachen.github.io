@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>图片上传背景叠加</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -45,6 +46,16 @@
     input[type="file"] {
       margin: 20px 0;
     }
+
+    #imagePreview {
+      display: none;
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    .cropper-container {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -60,18 +71,51 @@
     </div>
   </div>
 
+  <!-- 用来显示裁剪区域的临时图片 -->
+  <div class="cropper-container">
+    <img id="imagePreview" alt="图片预览">
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
   <script>
+    let cropper;
+
     document.getElementById('fileInput').addEventListener('change', function(event) {
       const file = event.target.files[0];
       if (file && file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          const backgroundImage = document.getElementById('backgroundImage');
-          backgroundImage.src = e.target.result;
+          // 显示裁剪区域
+          const imagePreview = document.getElementById('imagePreview');
+          imagePreview.src = e.target.result;
+          document.querySelector('.cropper-container').style.display = 'block';
+
+          // 初始化 cropper.js
+          if (cropper) {
+            cropper.destroy(); // 销毁之前的裁剪器
+          }
+          cropper = new Cropper(imagePreview, {
+            aspectRatio: 16 / 9,
+            viewMode: 1,
+            autoCropArea: 0.8,
+            ready: function () {
+              // 可以在此处理裁剪区域准备好了
+            }
+          });
         };
         reader.readAsDataURL(file);
       } else {
         alert('请选择一个有效的图片文件！');
+      }
+    });
+
+    // 获取裁剪后的图像并设置为背景
+    document.getElementById('fileInput').addEventListener('change', function() {
+      if (cropper) {
+        const croppedCanvas = cropper.getCroppedCanvas();
+        const croppedImage = croppedCanvas.toDataURL();
+        const backgroundImage = document.getElementById('backgroundImage');
+        backgroundImage.src = croppedImage;
       }
     });
   </script>
