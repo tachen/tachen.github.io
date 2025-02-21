@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>高清图片叠加解决方案</title>
+  <title>雷鸟游戏技术支持</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -24,7 +24,6 @@
       border: 2px solid #ccc;
     }
     canvas {
-      cursor: move;
       width: 300px !important;
       height: 300px !important;
     }
@@ -52,6 +51,16 @@
       justify-content: center;
       align-items: center;
     }
+    .controls {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .slider {
+      width: 250px;
+      margin: 10px 0;
+    }
   </style>
 </head>
 <body>
@@ -59,6 +68,16 @@
   <input type="file" id="fileInput" accept="image/*">
   <div id="container">
     <canvas id="canvas"></canvas>
+  </div>
+  <div class="controls">
+    <label for="scaleSlider">缩放图片:</label>
+    <input type="range" id="scaleSlider" class="slider" min="0.1" max="2" step="0.01" value="1">
+    
+    <label for="positionXSlider">水平位置调整:</label>
+    <input type="range" id="positionXSlider" class="slider" min="-100" max="100" step="1" value="0">
+    
+    <label for="positionSlider">垂直位置调整:</label>
+    <input type="range" id="positionSlider" class="slider" min="-100" max="100" step="1" value="0">
   </div>
   <button id="saveButton">保存高清图片</button>
   <div class="loading" id="loading">处理中...</div>
@@ -77,9 +96,8 @@
     // 状态管理
     let uploadedImage = null;
     let backgroundImage = new Image();
-    let offsetY = 0;
-    let isDragging = false;
-    let startY;
+    let offsetX = 0;  // 水平位置
+    let offsetY = 0;  // 垂直位置
     let scaleFactor = 1;
 
     // 初始化画布
@@ -162,15 +180,19 @@
         const scaledWidth = uploadedImage.width * scaleFactor;
         const scaledHeight = uploadedImage.height * scaleFactor;
         
-        // 动态计算最大偏移
-        const maxOffset = Math.max(0, scaledHeight - CANVAS_SIZE);
-        offsetY = Math.min(Math.max(offsetY, -maxOffset), 0);
-        
+        // 计算图片中心
+        const centerX = CANVAS_SIZE / 2;
+        const centerY = CANVAS_SIZE / 2;
+
+        // 绘制图像时以中心为基准，并根据水平和垂直位置调整
+        const imageX = centerX - scaledWidth / 2 + offsetX;
+        const imageY = centerY - scaledHeight / 2 + offsetY;
+
         ctx.save();
         ctx.drawImage(
           uploadedImage,
           0, 0, uploadedImage.width, uploadedImage.height,
-          0, offsetY, scaledWidth, scaledHeight
+          imageX, imageY, scaledWidth, scaledHeight
         );
         ctx.restore();
       }
@@ -182,72 +204,33 @@
       );
     }
 
-    // 交互功能
-    let lastDraw = 0;
-    // 移动端触摸事件
-    canvas.addEventListener('touchstart', (e) => {
-      isDragging = true;
-      startY = e.touches[0].clientY - offsetY;
-    });
-
-    document.addEventListener('touchmove', (e) => {
-      if (!isDragging) return;
-      if (Date.now() - lastDraw < 16) return; // 60fps节流
-      
-      offsetY = e.touches[0].clientY - startY;
+    // 缩放图片
+    document.getElementById('scaleSlider').addEventListener('input', (e) => {
+      scaleFactor = parseFloat(e.target.value);
       draw();
-      lastDraw = Date.now();
     });
 
-    document.addEventListener('touchend', () => {
-      isDragging = false;
-    });
-
-    // 鼠标事件 (桌面端)
-    canvas.addEventListener('mousedown', (e) => {
-      isDragging = true;
-      startY = e.clientY - offsetY;
-    });
-
-    document.addEventListener('mousemove', (e) => {
-      if (!isDragging) return;
-      if (Date.now() - lastDraw < 16) return; // 60fps节流
-      
-      offsetY = e.clientY - startY;
+    // 调整水平位置
+    document.getElementById('positionXSlider').addEventListener('input', (e) => {
+      offsetX = parseFloat(e.target.value);
       draw();
-      lastDraw = Date.now();
     });
 
-    document.addEventListener('mouseup', () => {
-      isDragging = false;
+    // 调整垂直位置
+    document.getElementById('positionSlider').addEventListener('input', (e) => {
+      offsetY = parseFloat(e.target.value);
+      draw();
     });
 
     // 保存功能
     document.getElementById('saveButton').addEventListener('click', () => {
-      if (isWeChat()) {
-        // 在微信内保存图片
-        canvas.toBlob((blob) => {
-          const url = URL.createObjectURL(blob);
-          wx.saveImageToPhotosAlbum({
-            filePath: url,
-            success() {
-              alert('图片已保存到相册');
-            },
-            fail() {
-              alert('保存失败');
-            }
-          });
-        }, 'image/png', 1);
-      } else {
-        // 其他环境下载图片
-        const link = document.createElement('a');
-        link.download = `hd-image-${Date.now()}.png`;
-        canvas.toBlob((blob) => {
-          link.href = URL.createObjectURL(blob);
-          link.click();
-          URL.revokeObjectURL(link.href);
-        }, 'image/png', 1);
-      }
+      const link = document.createElement('a');
+      link.download = `hd-image-${Date.now()}.png`;
+      canvas.toBlob((blob) => {
+        link.href = URL.createObjectURL(blob);
+        link.click();
+        URL.revokeObjectURL(link.href);
+      }, 'image/png', 1);
     });
 
     // 辅助函数
@@ -265,17 +248,9 @@
       loading.style.display = 'none';
     }
 
-    // 判断是否是微信环境
-    function isWeChat() {
-      return /MicroMessenger/i.test(navigator.userAgent);
-    }
-
     // 初始化
     initCanvas();
     loadBackground();
   </script>
-
-  <!-- 微信SDK -->
-  <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
 </body>
 </html>
