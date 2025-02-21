@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>图片上传背景叠加</title>
+  <title>高清图片叠加解决方案</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -25,6 +25,8 @@
     }
     canvas {
       cursor: move;
+      width: 300px !important;
+      height: 300px !important;
     }
     input[type="file"] {
       margin: 20px 0;
@@ -39,24 +41,40 @@
       border-radius: 4px;
       cursor: pointer;
     }
+    .loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255,255,255,0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
   </style>
 </head>
 <body>
-  <h1>上传图片作为背景</h1>
+  <h1>高清图片叠加工具</h1>
   <input type="file" id="fileInput" accept="image/*">
-  
   <div id="container">
-    <canvas id="canvas" width="300" height="300"></canvas>
+    <canvas id="canvas"></canvas>
   </div>
-  <button id="saveButton">保存图片</button>
+  <button id="saveButton">保存高清图片</button>
+  <div class="loading" id="loading">处理中...</div>
 
   <script>
-    const fileInput = document.getElementById('fileInput');
-    const saveButton = document.getElementById('saveButton');
+    // 核心配置
+    const CANVAS_SIZE = 300;    // 逻辑尺寸
+    const MAX_SOURCE_SIZE = 2400; // 最大处理尺寸
+    const DPR = window.devicePixelRatio || 1;
+
+    // DOM元素
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    
-    // 初始化变量
+    const loading = document.getElementById('loading');
+
+    // 状态管理
     let uploadedImage = null;
     let backgroundImage = new Image();
     let offsetY = 0;
@@ -64,91 +82,183 @@
     let startY;
     let scaleFactor = 1;
 
-    // 加载背景图
-    backgroundImage.src = 'img/backgroundImage.png'; // 确保此图片存在
-    backgroundImage.onload = () => draw();
+    // 初始化画布
+    function initCanvas() {
+      canvas.width = CANVAS_SIZE * DPR;
+      canvas.height = CANVAS_SIZE * DPR;
+      ctx.scale(DPR, DPR);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+    }
 
-    // 文件上传处理
-    fileInput.addEventListener('change', handleFileUpload);
-    saveButton.addEventListener('click', saveImage);
+    // 加载高清背景图
+    function loadBackground() {
+      backgroundImage.src = `img/backgroundImage.png`;
+      backgroundImage.onload = () => draw();
+    }
 
-    // 鼠标事件处理
-    canvas.addEventListener('mousedown', startDragging);
-    document.addEventListener('mousemove', dragImage);
-    document.addEventListener('mouseup', stopDragging);
+    // 文件处理
+    document.getElementById('fileInput').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
 
-    function handleFileUpload(event) {
-      const file = event.target.files[0];
-      if (!file?.type.startsWith('image/')) return alert('请选择有效的图片文件！');
+      showLoading();
+      try {
+        const img = await processImageFile(file);
+        uploadedImage = img;
+        calculateScale();
+        draw();
+        document.getElementById('saveButton').style.display = 'inline-block';
+      } catch (error) {
+        alert('图片处理失败: ' + error.message);
+      }
+      hideLoading();
+    });
 
-      const reader = new FileReader();
-      reader.onload = e => {
-        uploadedImage = new Image();
-        uploadedImage.src = e.target.result;
-        uploadedImage.onload = () => {
-          calculateScale();
-          draw();
-          saveButton.style.display = 'inline-block';
+    // 图片预处理
+    async function processImageFile(file) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        const reader = new FileReader();
+        
+        reader.onload = (e) => {
+          img.onload = () => {
+            // 尺寸过大时进行缩放
+            if (Math.max(img.width, img.height) > MAX_SOURCE_SIZE) {
+              const scaled = createScaledImage(img);
+              resolve(scaled);
+            } else {
+              resolve(img);
+            }
+          };
+          img.onerror = () => reject(new Error('图片加载失败'));
+          img.src = e.target.result;
         };
-      };
-      reader.readAsDataURL(file);
+        reader.readAsDataURL(file);
+      });
     }
 
-    function calculateScale() {
-      // 保持宽高比的缩放计算
-      const canvasRatio = canvas.width / canvas.height;
-      const imageRatio = uploadedImage.width / uploadedImage.height;
-      scaleFactor = imageRatio > canvasRatio ? 
-        canvas.width / uploadedImage.width : 
-        canvas.height / uploadedImage.height;
-    }
-
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // 创建缩放后的图片
+    function createScaledImage(sourceImg) {
+      const ratio = MAX_SOURCE_SIZE / Math.max(sourceImg.width, sourceImg.height);
+      const canvas = document.createElement('canvas');
+      canvas.width = sourceImg.width * ratio;
+      canvas.height = sourceImg.height * ratio;
       
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(sourceImg, 0, 0, canvas.width, canvas.height);
+      
+      const scaledImage = new Image();
+      scaledImage.src = canvas.toDataURL();
+      return scaledImage;
+    }
+
+    // 绘制逻辑
+    function draw() {
+      ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+
       // 绘制用户图片
       if (uploadedImage) {
         const scaledWidth = uploadedImage.width * scaleFactor;
         const scaledHeight = uploadedImage.height * scaleFactor;
         
-        // 限制垂直拖动范围
-        const maxY = Math.max(0, scaledHeight - canvas.height);
-        offsetY = Math.min(Math.max(offsetY, -maxY), 0);
+        // 动态计算最大偏移
+        const maxOffset = Math.max(0, scaledHeight - CANVAS_SIZE);
+        offsetY = Math.min(Math.max(offsetY, -maxOffset), 0);
         
+        ctx.save();
         ctx.drawImage(
           uploadedImage,
           0, 0, uploadedImage.width, uploadedImage.height,
           0, offsetY, scaledWidth, scaledHeight
         );
+        ctx.restore();
       }
 
-      // 叠加背景图
-      ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+      // 叠加背景
+      ctx.drawImage(backgroundImage, 
+        0, 0, backgroundImage.width, backgroundImage.height,
+        0, 0, CANVAS_SIZE, CANVAS_SIZE
+      );
     }
 
-    // 拖动相关函数
-    function startDragging(e) {
+    // 交互功能
+    let lastDraw = 0;
+    canvas.addEventListener('mousedown', (e) => {
       isDragging = true;
       startY = e.clientY - offsetY;
-    }
+    });
 
-    function dragImage(e) {
+    document.addEventListener('mousemove', (e) => {
       if (!isDragging) return;
+      if (Date.now() - lastDraw < 16) return; // 60fps节流
+      
       offsetY = e.clientY - startY;
       draw();
-    }
+      lastDraw = Date.now();
+    });
 
-    function stopDragging() {
+    document.addEventListener('mouseup', () => {
       isDragging = false;
+    });
+
+    document.getElementById('saveButton').addEventListener('click', () => {
+      const canvas = document.querySelector('canvas');
+      try {
+        // 尝试使用toBlob生成Blob对象
+        canvas.toBlob((blob) => {
+          const link = document.createElement('a');
+          link.download = `hd-image-${Date.now()}.png`;
+          const blobUrl = URL.createObjectURL(blob);
+          link.href = blobUrl;
+
+          // 将链接添加到页面，用户手动点击下载
+          link.textContent = '点击此处下载图片';
+          document.body.appendChild(link);
+
+          // 微信中可能无法自动触发click，提示用户点击链接
+          if (/MicroMessenger/.test(navigator.userAgent)) {
+            alert('请手动点击新生成的链接下载图片');
+          } else {
+            link.click(); // 非微信环境自动触发下载
+          }
+
+          // 清理资源
+          setTimeout(() => {
+            URL.revokeObjectURL(blobUrl);
+            link.remove();
+          }, 1000);
+        }, 'image/png', 1);
+      } catch (error) {
+        // 若toBlob失败（如跨域问题），改用toDataURL显示图片
+        const dataURL = canvas.toDataURL('image/png');
+        const img = document.createElement('img');
+        img.src = dataURL;
+        img.style.maxWidth = '100%';
+        document.body.appendChild(img);
+        alert('长按图片保存到相册');
+      }
+    });
+
+
+    // 辅助函数
+    function calculateScale() {
+      const widthRatio = CANVAS_SIZE / uploadedImage.width;
+      const heightRatio = CANVAS_SIZE / uploadedImage.height;
+      scaleFactor = Math.min(widthRatio, heightRatio);
     }
 
-    // 保存图片功能
-    function saveImage() {
-      const link = document.createElement('a');
-      link.download = 'combined-image.png';
-      link.href = canvas.toDataURL();
-      link.click();
+    function showLoading() {
+      loading.style.display = 'flex';
     }
+
+    function hideLoading() {
+      loading.style.display = 'none';
+    }
+
+    // 初始化
+    initCanvas();
+    loadBackground();
   </script>
 </body>
 </html>
