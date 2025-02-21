@@ -93,32 +93,20 @@
     });
 
     function drawWithAlphaMask(bgImage, maskImage) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // 先绘制uploadedImage作为背景
+  if (uploadedImage) {
+    const scale = canvas.width / uploadedImage.width;
+    const height = uploadedImage.height * scale;
+    const imageY = Math.min(Math.max(offsetY, 0), canvas.height - height);
+    ctx.drawImage(uploadedImage, 0, imageY, canvas.width, height);
+  }
+  
+  // 再绘制bgImage，其透明部分会显示下方的uploadedImage
+  ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+}
 
-      // Step 1: 绘制背景图
-      ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
-
-      // Step 2: 绘制上传的图片（仅 Y 轴滑动）
-      if (uploadedImage) {
-        const scale = canvas.height / uploadedImage.height; // 按高度缩放
-        const width = uploadedImage.width * scale;
-
-        // 确保图片不会超出画布的范围
-        const imageY = Math.min(Math.max(offsetY, 0), canvas.height - uploadedImage.height * scale);
-
-        // 使用默认绘制模式，上传图片不会被遮罩影响
-        ctx.drawImage(
-          uploadedImage,
-          0, imageY, // 控制 Y 轴偏移，确保图片不超出下边界
-          width, canvas.height
-        );
-      }
-
-      // Step 3: 绘制遮罩（仅影响背景）
-      ctx.globalCompositeOperation = 'destination-atop'; // 确保遮罩只影响背景部分
-      ctx.drawImage(maskImage, 0, 0, canvas.width, canvas.height); // 保持遮罩不动
-      ctx.globalCompositeOperation = 'source-over'; // 恢复默认绘制模式
-    }
 
     // 鼠标事件：拖动图片
     canvas.addEventListener('mousedown', function(e) {
