@@ -3,27 +3,62 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>图片上传</title>
+  <title>图片上传背景叠加</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       margin-top: 50px;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #f0f0f0;
     }
+
+    #container {
+      width: 80%;
+      height: 80%;
+      background-color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid #ccc;
+    }
+
+    #backgroundImage {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
+
+    #content {
+      z-index: 1;
+    }
+
     input[type="file"] {
       margin: 20px 0;
-    }
-    img {
-      max-width: 100%;
-      height: auto;
-      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <h1>图片上传</h1>
+
+  <h1>上传图片作为背景</h1>
   <input type="file" id="fileInput" accept="image/*">
-  <div id="imagePreview"></div>
+  
+  <div id="container">
+    <img id="backgroundImage" src="" alt="背景图片">
+    <div id="content">
+      <h2>这里是网页内容</h2>
+      <p>你上传的图片将显示为背景。</p>
+    </div>
+  </div>
 
   <script>
     document.getElementById('fileInput').addEventListener('change', function(event) {
@@ -31,16 +66,15 @@
       if (file && file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          const img = document.createElement('img');
-          img.src = e.target.result;
-          document.getElementById('imagePreview').innerHTML = ''; // 清空之前的图片
-          document.getElementById('imagePreview').appendChild(img);
+          const backgroundImage = document.getElementById('backgroundImage');
+          backgroundImage.src = e.target.result;
         };
         reader.readAsDataURL(file);
       } else {
-        alert('请选择一个图片文件！');
+        alert('请选择一个有效的图片文件！');
       }
     });
   </script>
+
 </body>
 </html>
