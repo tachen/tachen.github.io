@@ -11,13 +11,27 @@ layout: default
     </div>
 </header>
 
+{% assign recent_count = 0 %}
+{% assign archive_count = 0 %}
+{% for post in site.posts %}
+    {% assign post_year = post.date | date: "%Y" %}
+    {% if post_year == "2017" %}
+        {% assign archive_count = archive_count | plus: 1 %}
+    {% else %}
+        {% assign recent_count = recent_count | plus: 1 %}
+    {% endif %}
+{% endfor %}
+
 <section class="block latest" aria-labelledby="latest-title">
     <div class="section-head">
         <p class="section-kicker">近作</p>
         <h2 id="latest-title">最近的笔记</h2>
+        <p class="section-note">共 {{ recent_count }} 篇。</p>
     </div>
     <ol>
-        {% for post in site.posts limit:4 %}
+        {% for post in site.posts %}
+        {% assign post_year = post.date | date: "%Y" %}
+        {% if post_year == "2017" %}{% continue %}{% endif %}
         <li class="essay">
             <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y.%m.%d" }}</time>
             <div>
@@ -35,7 +49,7 @@ layout: default
     <div class="section-head">
         <p class="section-kicker">档案</p>
         <h2 id="archive-title">2017 年档案</h2>
-        <p class="section-note">共 {{ site.posts.size }} 篇，从七月写到十月。</p>
+        <p class="section-note">共 {{ archive_count }} 篇，从七月写到十月。</p>
     </div>
     {% include archive-list.html %}
 </section>

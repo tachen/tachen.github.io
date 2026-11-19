@@ -488,6 +488,27 @@ a { color: inherit; }
   color: var(--line);
 }
 
+.ai-note,
+.source-note {
+  margin: 0.7rem 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  letter-spacing: 0.03em;
+}
+
+.source-note a {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-color: rgba(255, 255, 255, 0.35);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.source-note a:hover,
+.source-note a:focus-visible {
+  text-decoration-color: rgba(255, 255, 255, 0.9);
+}
+
 .prose {
   margin-top: 1.35rem;
   overflow-wrap: break-word;
@@ -543,6 +564,10 @@ a { color: inherit; }
   height: auto;
   margin: 1.1rem 0;
   border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.prose mjx-container {
+  color: inherit;
 }
 
 .prose blockquote {
