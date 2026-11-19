@@ -1,258 +1,41 @@
-<!DOCTYPE html>
-<html lang="zh">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>雷鸟游戏技术支持</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background-color: #f0f0f0;
-    }
-    #container {
-      width: 300px;
-      height: 300px;
-      position: relative;
-      overflow: hidden;
-      border: 2px solid #ccc;
-    }
-    canvas {
-      width: 300px !important;
-      height: 300px !important;
-    }
-    input[type="file"] {
-      margin: 20px 0;
-    }
-    #saveButton {
-      margin-top: 20px;
-      display: none;
-      padding: 10px 20px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .loading {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(255,255,255,0.8);
-      display: none;
-      justify-content: center;
-      align-items: center;
-    }
-    .controls {
-      margin-top: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .slider {
-      width: 250px;
-      margin: 10px 0;
-    }
-  </style>
-</head>
-<body>
-  <input type="file" id="fileInput" accept="image/*">
-  <div id="container">
-    <canvas id="canvas"></canvas>
-  </div>
-  <div class="controls">
-    <label for="scaleSlider">缩放图片:</label>
-    <input type="range" id="scaleSlider" class="slider" min="0.1" max="2" step="0.01" value="1">
-    
-    <label for="positionXSlider">水平位置调整:</label>
-    <input type="range" id="positionXSlider" class="slider" min="-100" max="100" step="1" value="0">
-    
-    <label for="positionSlider">垂直位置调整:</label>
-    <input type="range" id="positionSlider" class="slider" min="-100" max="100" step="1" value="0">
-  </div>
-  <button id="saveButton">保存高清图片</button>
-  <div class="loading" id="loading">处理中...</div>
+---
+layout: default
+---
 
-  <script>
-    // 核心配置
-    const CANVAS_SIZE = 300;    // 逻辑尺寸
-    const MAX_SOURCE_SIZE = 2400; // 最大处理尺寸
-    const DPR = window.devicePixelRatio || 1;
+<header class="masthead">
+    <img class="mark" src="{{ site.baseurl }}/img/btg-mark.png" width="200" height="200" alt="Btg">
+    <div>
+        <p class="eyebrow">tachen</p>
+        <h1>{{ site.title }}</h1>
+        <p class="lede">{{ site.description }}</p>
+    </div>
+</header>
 
-    // DOM元素
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const loading = document.getElementById('loading');
-    const scaleSlider = document.getElementById('scaleSlider');
+<section class="block latest" aria-labelledby="latest-title">
+    <div class="section-head">
+        <p class="section-kicker">近作</p>
+        <h2 id="latest-title">最近的笔记</h2>
+    </div>
+    <ol>
+        {% for post in site.posts limit:4 %}
+        <li class="essay">
+            <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y.%m.%d" }}</time>
+            <div>
+                <h3><a href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a></h3>
+                {% if post.subtitle %}
+                <p class="dek">{{ post.subtitle }}</p>
+                {% endif %}
+            </div>
+        </li>
+        {% endfor %}
+    </ol>
+</section>
 
-    // 状态管理
-    let uploadedImage = null;
-    let backgroundImage = new Image();
-    let offsetX = 0;  // 水平位置
-    let offsetY = 0;  // 垂直位置
-    let scaleFactor = 1;
-
-    // 初始化画布
-    function initCanvas() {
-      canvas.width = CANVAS_SIZE * DPR;
-      canvas.height = CANVAS_SIZE * DPR;
-      ctx.scale(DPR, DPR);
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
-    }
-
-    // 加载高清背景图
-    function loadBackground() {
-      backgroundImage.src = `img/backgroundImage.png`;
-      backgroundImage.onload = () => draw();
-    }
-
-    // 文件处理
-    document.getElementById('fileInput').addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      showLoading();
-      try {
-        const img = await processImageFile(file);
-        uploadedImage = img;
-        calculateScale();
-        draw();
-        document.getElementById('saveButton').style.display = 'inline-block';
-        // 根据图片的初始大小设置缩放进度条的初始值
-        scaleSlider.value = scaleFactor;
-      } catch (error) {
-        alert('图片处理失败: ' + error.message);
-      }
-      hideLoading();
-    });
-
-    // 图片预处理
-    async function processImageFile(file) {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        const reader = new FileReader();
-        
-        reader.onload = (e) => {
-          img.onload = () => {
-            // 尺寸过大时进行缩放
-            if (Math.max(img.width, img.height) > MAX_SOURCE_SIZE) {
-              const scaled = createScaledImage(img);
-              resolve(scaled);
-            } else {
-              resolve(img);
-            }
-          };
-          img.onerror = () => reject(new Error('图片加载失败'));
-          img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-
-    // 创建缩放后的图片
-    function createScaledImage(sourceImg) {
-      const ratio = MAX_SOURCE_SIZE / Math.max(sourceImg.width, sourceImg.height);
-      const canvas = document.createElement('canvas');
-      canvas.width = sourceImg.width * ratio;
-      canvas.height = sourceImg.height * ratio;
-      
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(sourceImg, 0, 0, canvas.width, canvas.height);
-      
-      const scaledImage = new Image();
-      scaledImage.src = canvas.toDataURL();
-      return scaledImage;
-    }
-
-    // 绘制逻辑
-    function draw() {
-      ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
-
-      // 绘制用户图片
-      if (uploadedImage) {
-        const scaledWidth = uploadedImage.width * scaleFactor;
-        const scaledHeight = uploadedImage.height * scaleFactor;
-        
-        // 计算图片中心
-        const centerX = CANVAS_SIZE / 2;
-        const centerY = CANVAS_SIZE / 2;
-
-        // 绘制图像时以中心为基准，并根据水平和垂直位置调整
-        const imageX = centerX - scaledWidth / 2 + offsetX;
-        const imageY = centerY - scaledHeight / 2 + offsetY;
-
-        ctx.save();
-        ctx.drawImage(
-          uploadedImage,
-          0, 0, uploadedImage.width, uploadedImage.height,
-          imageX, imageY, scaledWidth, scaledHeight
-        );
-        ctx.restore();
-      }
-
-      // 叠加背景
-      ctx.drawImage(backgroundImage, 
-        0, 0, backgroundImage.width, backgroundImage.height,
-        0, 0, CANVAS_SIZE, CANVAS_SIZE
-      );
-    }
-
-    // 缩放图片
-    scaleSlider.addEventListener('input', (e) => {
-      scaleFactor = parseFloat(e.target.value);
-      draw();
-    });
-
-    // 调整水平位置
-    document.getElementById('positionXSlider').addEventListener('input', (e) => {
-      offsetX = parseFloat(e.target.value);
-      draw();
-    });
-
-    // 调整垂直位置
-    document.getElementById('positionSlider').addEventListener('input', (e) => {
-      offsetY = parseFloat(e.target.value);
-      draw();
-    });
-
-    // 保存功能
-    document.getElementById('saveButton').addEventListener('click', () => {
-      const link = document.createElement('a');
-      link.download = `hd-image-${Date.now()}.png`;
-      canvas.toBlob((blob) => {
-        link.href = URL.createObjectURL(blob);
-        link.click();
-        URL.revokeObjectURL(link.href);
-      }, 'image/png', 1);
-    });
-
-    // 辅助函数
-    function calculateScale() {
-      const widthRatio = CANVAS_SIZE / uploadedImage.width;
-      const heightRatio = CANVAS_SIZE / uploadedImage.height;
-      scaleFactor = Math.min(widthRatio, heightRatio);
-    }
-
-    function showLoading() {
-      loading.style.display = 'flex';
-    }
-
-    function hideLoading() {
-      loading.style.display = 'none';
-    }
-
-    // 初始化
-    initCanvas();
-    loadBackground();
-  </script>
-</body>
-</html>
+<section class="block archive" id="archive" aria-labelledby="archive-title">
+    <div class="section-head">
+        <p class="section-kicker">档案</p>
+        <h2 id="archive-title">2017 年档案</h2>
+        <p class="section-note">共 {{ site.posts.size }} 篇，从七月写到十月。</p>
+    </div>
+    {% include archive-list.html %}
+</section>

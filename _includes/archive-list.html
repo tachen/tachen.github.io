@@ -1,0 +1,24 @@
+<div class="archive-list">
+{% assign current_month = "" %}
+{% for post in site.posts %}
+    {% assign ym = post.date | date: "%Y-%m" %}
+    {% if ym != current_month %}
+        {% unless forloop.first %}
+        </ol>
+    </section>
+        {% endunless %}
+        {% assign current_month = ym %}
+    <section class="month">
+        <h3>{{ post.date | date: "%Y年%-m月" }}</h3>
+        <ol>
+    {% endif %}
+        <li>
+            <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%d" }}</time>
+            <a href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
+        </li>
+    {% if forloop.last %}
+        </ol>
+    </section>
+    {% endif %}
+{% endfor %}
+</div>
