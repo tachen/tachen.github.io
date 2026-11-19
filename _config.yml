@@ -1,15 +1,16 @@
 # Site settings
 title: BTG开发日志
-header-img: img/post-BTG-bg-0.png
 email: tachen@foxmail.com
-copyright_name: tachen/Corporate BTG
+copyright_name: tachen
 description: "每天进步一点点！"
-baseurl: "/tachen.github.io"
-url: "/TachenBlog"
+# User/organization GitHub Pages is served at the domain root.
+# url must be the canonical origin; baseurl stays empty (not /tachen.github.io).
+url: "https://tachen.github.io"
+baseurl: ""
 twitter_username: tachen8
-github_username:  tachen
-facebook_username:  
-email_username:  tachen@foxmail.com
+github_username: tachen
+facebook_username:
+email_username: tachen@foxmail.com
 
 # Google Analytics
 # To enable google analytics, uncomment below line with a valid Google Tracking ID
@@ -19,7 +20,30 @@ email_username:  tachen@foxmail.com
 markdown: kramdown
 highlighter: rouge
 permalink: pretty
-paginate: 5
-exclude: ["less","node_modules","Gruntfile.js","package.json","README.md"]
+encoding: utf-8
 
-gems: [jekyll-paginate, jekyll-feed]
+plugins:
+  - jekyll-feed
+
+feed:
+  posts_limit: 20
+
+exclude:
+  - less
+  - node_modules
+  - vendor
+  - Gruntfile.js
+  - package.json
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - build_0.bat
+  - build_1.bat
+  - build_2.bat
+  - mail
+  - fonts
+  - js
+  - css/bootstrap.css
+  - css/bootstrap.min.css
+  - css/clean-blog.css
+  - css/clean-blog.min.css

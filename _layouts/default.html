@@ -1,18 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="zh-CN">
 {% include head.html %}
-
 <body>
-
-    {% include nav.html %}
-
-    {{ content }}
-
-    {% include footer.html %}
-
+    <a class="skip" href="#content">跳到正文</a>
+    <div class="sheet">
+        {% include nav.html %}
+        <main id="content">
+            {{ content }}
+        </main>
+        {% include footer.html %}
+    </div>
     {% include ga.html %}
-
 </body>
-
 </html>
