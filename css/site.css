@@ -488,6 +488,29 @@ a { color: inherit; }
   color: var(--line);
 }
 
+#busuanzi_container_page_pv {
+  display: none;
+}
+
+.byline #busuanzi_value_page_pv::before {
+  content: none;
+  margin: 0;
+}
+
+.pv {
+  margin-left: 0.55rem;
+  color: var(--faint);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pv[hidden] {
+  display: none !important;
+}
+
 .ai-note,
 .source-note {
   margin: 0.7rem 0 0;

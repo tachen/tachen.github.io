@@ -18,7 +18,9 @@
     {% endif %}
         <li>
             <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%d" }}</time>
-            <a href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
+            <div>
+                <a href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>{% include pv.html path=post.url %}
+            </div>
         </li>
 {% endfor %}
 {% if current_month != "" %}
