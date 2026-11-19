@@ -1,0 +1,141 @@
+---
+layout: post
+title: "Arm Mali GPU 架构演进与技术剖析"
+date: "2026-08-09 12:26:58 +0800"
+author: tachen
+original_url: https://zhuanlan.zhihu.com/p/2069756893036393327
+---
+
+![Arm Mali GPU 架构演进与技术剖析]({{ site.baseurl }}/img/posts/2026-08-09-mali-gpu/v2-f610c91822c151a2413859bd65ee3d13.jpg)
+
+## Arm Mali GPU 架构演进与技术剖析
+
+**30 秒速览：**
+
+**Arm Mali GPU 的进化史，本质上是在极度受限的功耗与显存带宽包络内，逐步吞下桌面级复杂渲染管线的硬件演进史。**
+
+1. **Utgard 阶段： 分离式顶点/像素管线（VP + FP），硬件利用率低。**
+2. **Midgard 阶段： 统一着色器 + 128-bit SIMD 向量架构，提倡 vec4 计算，但面对标量代码时算力浪费严重。**
+3. **Bifrost 阶段： 彻底转向 2x2 Quad 标量架构与静态 Clause 指令打包，大幅提升 FLOPs 利用率。**
+4. **Valhall 阶段： 转向 16-wide SIMD Warp 结构，大幅降低 Vulkan API 驱动开销，引入硬件级 VRS。**
+5. **5th Gen / Immortalis 阶段： 引入硬件级光追单元 (RTU)、延迟顶点着色 (DVS) 与 Fragment Prepass，支持移动端实时光追、UE5 Nanite 千万级多边形与 AI 神经超采样。**
+
+**本文系统梳理 Mali GPU 从早期 OpenGL ES 阶段到现代 AI/神经渲染与硬件光线追踪阶段的五大核心演进时期，并附带 Arm 官方文档及开发者博客的参考链接。**
+
+## 核心基石：TBDR（Tile-Based Deferred Rendering）
+
+**在理解具体架构演进之前，必须明确 Mali GPU 的基本架构——TBDR（分块延迟渲染） 架构。**
+
+- **IMR (Immediate Mode Rendering, 传统桌面架构)： 三角形绘制指令直接在全局显存（DDR/VRAM）中读写，导致高频、高功耗的显存带宽消耗。**
+- **TBDR (Tile-Based Deferred Rendering, 移动端架构)：**
+- **将屏幕划分为极小的块（Tiles，通常为 16x16 像素）。**
+- **所有的 Pixel/Fragment Shading、混合（Blending）、Depth/Stencil 测试均在芯片内置的极高速 Tile Buffer（片上 SRAM/L1 Cache） 中完成。**
+- **仅在当前 Tile 完全渲染完成后，才一次性写回 DDR 显存，从而节省了巨额的显存读写功耗。**
+
+**官方参考：[Arm Performance Studio - Profiling Arm GPUs](https://developer.arm.com/tools-and-software/arm-performance-studio)**
+
+## 一、 第一阶段：Utgard 架构（分离式固定/早期可编程管线）
+
+- **代表型号： Mali-200, Mali-300, Mali-400 MP, Mali-450**
+- **时代背景： Android 早期（OpenGL ES 1.1 / 2.0 时代）**
+
+### 1. 架构特点
+
+- **分离式管线（Separated Pipeline）： 硬件上严格区分 Vertex Processor (VP) 和 Fragment Processor (FP)。**
+- **VP 专门负责 3D 顶点的几何变换与光照计算；FP 专门负责像素的着色与纹理采样。**
+
+### 2. 瓶颈与局限
+
+- **负载不均衡（Load Imbalance）： 在几何复杂（高面数）场景下，VP 满载爆表而 FP 闲置；在复杂像素着色（重度特效）场景下，FP 满载而 VP 闲置。**
+- **缺乏通用计算（Compute Shader）： 无法支持 OpenCL 或 GPGPU 计算。**
+
+## 二、 第二阶段：Midgard 架构（统一着色器与 128-bit SIMD 向量）
+
+- **代表型号： Mali-T604, Mali-T760, Mali-T880**
+- **时代背景： OpenGL ES 3.0 / 3.1、4K 显示屏与早期 3D 游戏兴起**
+
+### 1. 核心革新
+
+- **统一着色器架构（Unified Shading Architecture）： 废除 VP 与 FP 的物理隔离，引入统一的 Shader Core。同一个计算核心既可跑 Vertex，也可跑 Fragment 与 Compute。**
+- **128-bit 向量架构（SIMD Vector Architecture）： 采用基于 128-bit 向量寄存器的结构（VLIW/SIMD），非常适合当时图形学中常见的 vec4（R, G, B, A 颜色或 X, Y, Z, W 坐标）运算。**
+- **引入 AFBC (Arm Frame Buffer Compression)： 首次引入片上无损帧缓冲区压缩技术，大幅降低 Tile 数据写回 DDR 时的内存带宽。**
+
+### 2. 瓶颈与局限
+
+- **硬件利用率低： 当 Shader 代码中出现大量标量计算（例如单通道 Alpha 混合、逻辑分支或单个 float 运算）时，仅使用 128-bit 通道中的 1 个车道，其余 3 个车道空转，导致实际算力（FLOPs）利用率显著下降。**
+
+## 三、 第三阶段：Bifrost 架构（转向标量与 Clause 执行）
+
+- **代表型号： Mali-G71, Mali-G72, Mali-G76**
+- **时代背景： Vulkan 1.0 普及、复杂 Compute Shader 与手游电竞兴起**
+
+### 1. 核心革新：从 Vector 到 Quad-Scalar（标量化）
+
+- **标量执行引擎： 彻底放弃 128-bit 向量寄存器，转向以 Quad（2x2 像素块） 为单位的标量架构。**
+- **算力利用率： 不再按颜色通道切分，而是将相邻 4 个像素的同类标量计算绑定。即便代码中只有单浮点运算，算力利用率依然趋近 100%。**
+
+### 2. 核心革新：Clause Execution（线束执行）
+
+- **静态指令调度： 驱动编译器在编译期将 Shader 代码划分为相互独立、无数据依赖的指令块（Clause）。**
+- **硬件控制逻辑简化： 硬件流水线在 Clause 内部无需逐条检查依赖，直接高速发射指令，极大降低了芯片控制电路的功耗，提升了能效比（Performance / Watt）。**
+
+**官方参考：** **[Arm Community - Moving Mobile Graphics Course Resources](https://developer.arm.com/community/arm-community-blogs/b/mobile-graphics-and-gaming-blog/posts/moving-mobile-graphics)**
+
+## 四、 第四阶段：Valhall 架构（16-wide Warp 与低驱动开销）
+
+- **代表型号： Mali-G77, Mali-G78, Mali-G710**
+- **时代背景： Vulkan / DirectX 12 深度普及、硬件级 VRS（可变着色率）**
+
+### 1. 核心革新
+
+- **16-wide Warp (Thread Group) 结构： 放弃复杂的 Clause 机制，转向更接近 PC/桌面级 GPU（如 NVIDIA/AMD）的 16-wide SIMD Warp 结构。**
+- **简化驱动编译器： 大幅降低了 Vulkan API 在移动端的驱动层编译开销（Driver Overhead）。**
+- **硬件级 VRS (Variable Rate Shading)： 支持根据画面运动矢量或深度变化，动态降低非焦点区域的 Fragment 着色频率（如 1x1, 2x2, 4x4），在保障主观视觉效果的同时节省 20% ~ 40% 的像素计算功耗。**
+
+## 五、 第五阶段：5th Gen 架构 / Immortalis 时代（光追、DVS 与 AI 神经渲染）
+
+- **代表型号：**
+- **Immortalis-G715 / Mali-G715（首发硬件级移动光追）**
+- **Immortalis-G720 / Mali-G720（引入 DVS 延迟顶点着色）**
+- **Immortalis-G925 / Mali-G925（最新顶级 Flagship GPU）**
+- **时代背景： UE5 Nanite 虚拟几何体落地移动端、移动光线追踪、AI 神经超采样（Neural Super Sampling）**
+
+**[5th Gen Arm GPU Architecture]**  
+ **│**  
+ **├── Hardware Ray Tracing Unit (RTU) ---> BVH 树遍历与 Ray-Triangle 交叉检测硬件加速**  
+ **│**  
+ **├── Deferred Vertex Shading (DVS) ----> 颠覆传统 TBDR Binning，降低海量几何体带宽**  
+ **│**  
+ **└── Fragment Prepass & AI/ML ---------> 自动剔除 Overdraw，加速 INT8/FP16 张量计算**
+
+### 1. 硬件级光线追踪单元 (Ray Tracing Unit - RTU)
+
+- **硬件加速： 内置硬件 BVH 树遍历与 Ray-Triangle 交叉检测加速模块，光追性能较软件模拟提升数倍。**
+- **功耗控制： 使得移动端在 3W ~ 5W 功耗包络内运行实时光追反射、折射和阴影成为可能。**
+
+### 2. DVS（Deferred Vertex Shading，延迟顶点着色）
+
+- **突破几何瓶颈： 传统 TBDR 在面对几百万甚至数千万三角形（如 UE5 Nanite 资产）时，预先生成 Geometry/Binning 数据会引发严重的内存写回开销。**
+- **DVS 机制： 延迟顶点着色器的执行时机，避免对被遮挡的几何体进行无效顶点计算，极大降低了中间 Binning Data 的显存带宽占用。**
+
+### 3. 支持 UE5 Nanite 与 神经图形 (Neural Graphics)
+
+- **Fragment Prepass： 在 Immortalis-G925 中引入，无需应用层手动进行复杂的物体/图元排序，即可在硬件端高效消除 Overdraw。**
+- **超高多边形渲染： 结合 Vulkan Shader Model 6 与 DVS 机制，成功在搭载 Mali-G925 的移动设备上以 40+ FPS 运行数千万三角形的 Nanite 场景。**
+- **AI 神经超采样： 重构矩阵/张量乘法单元，为移动端神经网络超采样（Neural Super Sampling）与 AI 降噪提供高吞吐算力支持。**
+
+**官方参考：**
+
+- **[Arm Immortalis-G925 Product Page](https://www.arm.com/products/silicon-ip-multimedia/immortalis-gpu/immortalis-g925)**
+- **[Arm Newsroom: Unleashing Gaming and AI Innovation with New Arm GPUs](https://newsroom.arm.com/blog/arm-gpus-consumer-devices)**
+- **[Arm Community Blog: Mori to Nanite: Billions of triangles on mobile](https://developer.arm.com/community/arm-community-blogs/b/mobile-graphics-and-gaming-blog/posts/mori-to-nanite-billions-of-triangles-on-mobile)**
+
+## 总结：Mali 全代次架构对比表
+
+| 架构代次 | 代表 GPU | 核心计算范式 | 标志性硬件技术 | 行业核心驱动力 |
+| --- | --- | --- | --- | --- |
+| Utgard | Mali-400 MP | 分离式管线 (VP + FP) | 基础 Tile-Based 渲染 | 移动 3D 图形启蒙 (OpenGL ES 2.0) |
+| Midgard | Mali-T880 | 统一着色器 + 128-bit SIMD | AFBC 无损帧缓冲压缩 | OpenGL ES 3.0 / 4K 显示 |
+| Bifrost | Mali-G76 | 标量 (2x2 Quad) + Clause | Clause 静态指令编译包 | Vulkan 1.0 / 手游 Esports 兴起 |
+| Valhall | Mali-G710 | 16-wide SIMD Warp 结构 | 硬件级 VRS、低驱动开销 | 主机级画质 / Compute Shader |
+| 5th Gen | Immortalis-G925 | 超并行 + DVS + 硬件光追 | RTU 光追单元、DVS 延迟顶点、Fragment Prepass、AI 神经超采样 | UE5 Nanite、移动实时光追、AI 神经渲染 |

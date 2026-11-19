@@ -12,6 +12,14 @@ layout: default
             <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%Y年%-m月%-d日" }}</time>
             <span>{{ page.author | default: "tachen" }}</span>
         </p>
+        {% if page.creation_disclaimer %}
+        <p class="ai-note">{{ page.creation_disclaimer }}</p>
+        {% elsif page.ai_assisted_creation %}
+        <p class="ai-note">{{ page.ai_assisted_creation }}</p>
+        {% endif %}
+        {% if page.original_url %}
+        <p class="source-note"><a href="{{ page.original_url }}">原文发表于知乎</a></p>
+        {% endif %}
     </header>
 
     <div class="prose">
