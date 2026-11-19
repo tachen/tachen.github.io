@@ -9,6 +9,9 @@
         {% if site.twitter_username %}
         <a href="https://twitter.com/{{ site.twitter_username }}">Twitter</a>
         {% endif %}
+        {% if site.zhihu_username %}
+        <a href="https://www.zhihu.com/people/{{ site.zhihu_username }}">知乎</a>
+        {% endif %}
         <a href="{{ site.baseurl }}/feed.xml">订阅</a>
     </nav>
     <p class="copyright">© 2017–{{ site.time | date: "%Y" }} {{ site.copyright_name }}</p>

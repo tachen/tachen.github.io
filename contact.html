@@ -1,11 +1,14 @@
 ---
 layout: page
 title: 联系
-description: "写信，或者在 GitHub 上找我。"
+description: "写信，或者在 GitHub 和知乎上找我。"
 ---
 
 <p>邮箱：<a href="mailto:{{ site.email }}">{{ site.email }}</a></p>
 <p>GitHub：<a href="https://github.com/{{ site.github_username }}">{{ site.github_username }}</a></p>
 {% if site.twitter_username %}
 <p>Twitter：<a href="https://twitter.com/{{ site.twitter_username }}">@{{ site.twitter_username }}</a></p>
+{% endif %}
+{% if site.zhihu_username %}
+<p>知乎：<a href="https://www.zhihu.com/people/{{ site.zhihu_username }}">{{ site.zhihu_username }}</a></p>
 {% endif %}
