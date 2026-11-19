@@ -1,6 +1,6 @@
 # Site settings
 title: BTG开发日志
-email: tachen@foxmail.com
+email: tachenkyo@hotmail.com
 copyright_name: tachen
 description: "每天进步一点点！"
 # User/organization GitHub Pages is served at the domain root.
@@ -9,8 +9,9 @@ url: "https://tachen.github.io"
 baseurl: ""
 twitter_username: tachen8
 github_username: tachen
+zhihu_username: kyo-tachen
 facebook_username:
-email_username: tachen@foxmail.com
+email_username: tachenkyo@hotmail.com
 
 # Google Analytics
 # To enable google analytics, uncomment below line with a valid Google Tracking ID
