@@ -21,6 +21,11 @@
   --ok: oklch(0.84 0.15 155);
   --rule: rgba(255, 255, 255, 0.16);
   --mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", monospace;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur: 180ms;
+  --mx: 50%;
+  --my: 18%;
+  --glow: 0;
   color-scheme: dark;
 }
 
@@ -58,6 +63,25 @@ body {
   font-weight: 400;
   line-height: 1.75;
   -webkit-font-smoothing: antialiased;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(1.1px 1.1px at 16% 22%, rgba(255, 255, 255, 0.85) 50%, transparent 52%),
+    radial-gradient(1px 1px at 61% 15%, rgba(255, 255, 255, 0.7) 50%, transparent 52%),
+    radial-gradient(1.2px 1.2px at 82% 48%, rgba(255, 255, 255, 0.65) 50%, transparent 52%),
+    radial-gradient(1px 1px at 28% 71%, rgba(255, 255, 255, 0.6) 50%, transparent 52%);
+  opacity: 0.4;
+  animation: twinkle 14s ease-in-out infinite alternate;
+}
+
+@keyframes twinkle {
+  from { opacity: 0.28; }
+  to { opacity: 0.72; }
 }
 
 ::selection {
@@ -115,6 +139,26 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
+.sheet::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    220px circle at var(--mx) var(--my),
+    rgba(255, 255, 255, 0.045),
+    transparent 70%
+  );
+  opacity: var(--glow);
+  transition: opacity 320ms var(--ease);
+}
+
+.sheet > * {
+  position: relative;
+  z-index: 1;
+}
+
 a { color: inherit; }
 
 .nav {
@@ -158,6 +202,12 @@ a { color: inherit; }
 .brand img {
   width: 28px;
   height: 28px;
+  transition: box-shadow var(--dur) var(--ease);
+}
+
+.brand:hover img,
+.brand:focus-visible img {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.9);
 }
 
 .nav-links {
@@ -168,12 +218,27 @@ a { color: inherit; }
   letter-spacing: 0.14em;
 }
 
+.nav-links a,
+.brand,
+.essay h3 a,
+.month a,
+.post-pager a,
+.site-footer a,
+.prose a {
+  transition:
+    color var(--dur) var(--ease),
+    text-decoration-color var(--dur) var(--ease),
+    filter var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+
 .nav-links a {
   color: var(--muted);
   text-decoration: none;
 }
 
-.nav-links a:hover { color: var(--fg); }
+.nav-links a:hover,
+.nav-links a:focus-visible { color: var(--fg); }
 
 .nav-links a[aria-current="page"] {
   color: var(--ok);
@@ -289,12 +354,14 @@ a { color: inherit; }
 }
 
 .essay {
+  position: relative;
   display: grid;
   grid-template-columns: 6.4rem minmax(0, 1fr);
   column-gap: 1rem;
   align-items: baseline;
   padding: 0.95rem 0;
   border-top: 1px solid var(--rule);
+  transition: border-color var(--dur) var(--ease);
 }
 
 .essay time,
@@ -317,16 +384,57 @@ a { color: inherit; }
 .month a,
 .post-pager a {
   color: inherit;
-  text-decoration: none;
+  text-decoration-line: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.16em;
+}
+
+.essay::before,
+.month li::before {
+  content: "";
+  position: absolute;
+  left: -0.6rem;
+  top: 22%;
+  bottom: 22%;
+  width: 1px;
+  background: var(--fg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur) var(--ease);
+}
+
+.essay:hover,
+.essay:focus-within,
+.month li:hover,
+.month li:focus-within {
+  border-top-color: rgba(255, 255, 255, 0.42);
+}
+
+.essay:hover::before,
+.essay:focus-within::before,
+.month li:hover::before,
+.month li:focus-within::before {
+  opacity: 0.8;
 }
 
 .essay h3 a:hover,
+.essay h3 a:focus-visible,
 .month a:hover,
+.month a:focus-visible,
 .post-pager a:hover,
-.brand:hover,
+.post-pager a:focus-visible,
 .site-footer a:hover,
-.prose a:hover {
+.site-footer a:focus-visible {
   color: var(--fg);
+  text-decoration-color: rgba(255, 255, 255, 0.72);
+}
+
+.essay h3 a:hover,
+.essay h3 a:focus-visible,
+.month a:hover,
+.month a:focus-visible {
+  filter: brightness(1.12);
 }
 
 .essay .dek {
@@ -346,12 +454,14 @@ a { color: inherit; }
 .month:first-child h3 { margin-top: 0.2rem; }
 
 .month li {
+  position: relative;
   display: grid;
   grid-template-columns: 2.1rem minmax(0, 1fr);
   column-gap: 0.75rem;
   align-items: baseline;
   padding: 0.48rem 0;
   border-top: 1px solid var(--rule);
+  transition: border-color var(--dur) var(--ease);
 }
 
 .page-head,
@@ -412,6 +522,13 @@ a { color: inherit; }
   text-decoration-color: rgba(255, 255, 255, 0.35);
   text-decoration-thickness: 1px;
   text-underline-offset: 0.18em;
+}
+
+.prose a:hover,
+.prose a:focus-visible {
+  color: var(--fg);
+  text-decoration-color: rgba(255, 255, 255, 0.9);
+  filter: brightness(1.12);
 }
 
 .prose ul,
@@ -560,12 +677,13 @@ a { color: inherit; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  body::before { animation: none; opacity: 0.45; }
+  .sheet::after { display: none; }
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    animation: none !important;
+    transition: none !important;
     scroll-behavior: auto !important;
   }
 }

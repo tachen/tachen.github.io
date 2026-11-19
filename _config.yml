@@ -42,7 +42,12 @@ exclude:
   - build_2.bat
   - mail
   - fonts
-  - js
+  - js/jquery.js
+  - js/jquery.min.js
+  - js/bootstrap.js
+  - js/bootstrap.min.js
+  - js/clean-blog.js
+  - js/clean-blog.min.js
   - css/bootstrap.css
   - css/bootstrap.min.css
   - css/clean-blog.css
