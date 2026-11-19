@@ -11,6 +11,7 @@ layout: default
         <p class="byline">
             <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%Y年%-m月%-d日" }}</time>
             <span>{{ page.author | default: "tachen" }}</span>
+            <span id="busuanzi_container_page_pv">阅读 <span id="busuanzi_value_page_pv"></span> 次</span>
         </p>
         {% if page.creation_disclaimer %}
         <p class="ai-note">{{ page.creation_disclaimer }}</p>
